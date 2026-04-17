@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumen Dental | Family & Cosmetic Dentistry | Lake Jackson, TX</title>
+    <meta name="description" content="Lumen Dental offers expert family and cosmetic dentistry in Lake Jackson, TX. Schedule your appointment today for a brighter, healthier smile.">
+    
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Lumen Dental | Lake Jackson, TX">
+    <meta property="og:description" content="Providing quality dental care for the whole family in Lake Jackson.">
+    <meta property="og:url" content="https://lumendental.net">
+    <meta property="og:type" content="website">
+
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Dentist",
+      "name": "Lumen Dental",
+      "url": "https://lumendental.net",
+      "telephone": "(979) 297-3000",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "115 Abner Jackson Pkwy",
+        "addressLocality": "Lake Jackson",
+        "addressRegion": "TX",
+        "postalCode": "77566"
+      },
+      "openingHours": "Mo-Th 08:00-17:00"
+    }
+    </script>
+
+    <style>
+        :root {
+            --primary: #1b2b3a;
+            --accent: #2c7da0;
+            --light: #f8fbfe;
+            --text: #4a5568;
+            --white: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: var(--text); background: var(--white); }
+        
+        header { 
+            position: fixed; width: 100%; top: 0; background: var(--white); 
+            z-index: 1000; transition: all 0.3s ease; height: 80px; 
+            display: flex; align-items: center; padding: 0 5%;
+        }
+        
+        /* The improvement: Class-based shadow */
+        header.scrolled {
+            box-shadow: 0 2px 24px rgba(27,43,58,0.08);
+        }
+
+        nav { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 700; font-size: 1.5rem; color: var(--primary); text-decoration: none; }
+        .nav-links a { margin-left: 2rem; text-decoration: none; color: var(--primary); font-weight: 500; }
+        
+        .hero { 
+            padding: 160px 5% 100px; background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%); 
+            text-align: center; 
+        }
+        .hero h1 { font-size: 3rem; color: var(--primary); margin-bottom: 1.5rem; }
+        
+        .section { padding: 80px 5%; max-width: 1200px; margin: 0 auto; }
+        
+        .form-container { background: var(--light); padding: 40px; border-radius: 12px; max-width: 600px; margin: 0 auto; }
+        .form-group { margin-bottom: 20px; }
+        /* Accessibility Improvement: Visible Labels */
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--primary); }
+        input, select, textarea { 
+            width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; 
+            font-size: 1rem;
+        }
+
+        .btn { 
+            background: var(--accent); color: var(--white); border: none; 
+            padding: 14px 28px; border-radius: 6px; cursor: pointer; 
+            font-weight: 600; width: 100%; transition: opacity 0.2s;
+            font-size: 1rem;
+        }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        #form-success { display: none; text-align: center; padding: 20px; background: #e6fffa; color: #234e52; border-radius: 8px; }
+        #form-error { display: none; text-align: center; padding: 20px; background: #fff5f5; color: #c53030; border-radius: 8px; margin-top: 10px; }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header id="mainNav">
+    <nav>
+        <a href="#" class="logo">LUMEN DENTAL</a>
+        <div class="nav-links">
+            <a href="#services">Services</a>
+            <a href="#about">About</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </nav>
+</header>
+
+<section class="hero">
+    <h1>A Brighter Future for Your Smile</h1>
+    <p>Modern family dentistry serving the Lake Jackson community.</p>
+</section>
+
+<section id="contact" class="section">
+    <div class="form-container">
+        <h2 style="margin-bottom: 20px; text-align: center;">Request an Appointment</h2>
+        
+        <form id="appointment-form" action="https://formspree.io/f/mykbqeqd" method="POST">
+            <div class="form-group">
+                <label for="full-name">Full Name</label>
+                <input type="text" id="full-name" name="name" required placeholder="John Doe">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required placeholder="john@example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" required placeholder="(979) 000-0000" pattern="[0-9]{10}|[0-9]{3}-[0-9]{3}-[0-9]{4}|\([0-9]{3}\) [0-9]{3}-[0-9]{4}">
+            </div>
+
+            <div class="form-group">
+                <label for="service">Requested Service</label>
+                <select id="service" name="service">
+                    <option value="cleaning">General Cleaning</option>
+                    <option value="whitening">Teeth Whitening</option>
+                    <option value="emergency">Emergency Care</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <button type="submit" id="submit-btn" class="btn">Schedule Visit</button>
+        </form>
+
+        <div id="form-success">
+            <h3>Thank You!</h3>
+            <p>Your request has been sent. We will contact you shortly to confirm your appointment.</p>
+        </div>
+        <div id="form-error"></div>
+    </div>
+</section>
+
+<script>
+    // Improvement: Navigation shadow using Class Toggle
+    const nav = document.getElementById('mainNav');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 20) {
+            nav.classList.add('scrolled');
+        } else {
+            nav.classList.remove('scrolled');
+        }
+    });
+
+    // Improvement: Formspree handling with in-page feedback
+    const form = document.getElementById('appointment-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const successMsg = document.getElementById('form-success');
+    const errorMsg = document.getElementById('form-error');
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Accessibility: Indicate busy state
+        submitBtn.textContent = 'Sending...';
+        submitBtn.disabled = true;
+        form.setAttribute('aria-busy', 'true');
+        errorMsg.style.display = 'none';
+
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: { 'Accept': 'application/json' }
+            });
+
+            if (response.ok) {
+                form.style.display = 'none';
+                successMsg.style.display = 'block';
+                form.setAttribute('aria-busy', 'false');
+            } else {
+                const data = await response.json();
+                form.setAttribute('aria-busy', 'false');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Schedule Visit';
+                
+                errorMsg.textContent = data.errors ? 
+                    data.errors.map(err => err.message).join(', ') : 
+                    'Something went wrong. Please call us at (979) 297-3000.';
+                errorMsg.style.display = 'block';
+            }
+        } catch (error) {
+            errorMsg.textContent = 'Network error. Please check your connection or call us directly.';
+            errorMsg.style.display = 'block';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Schedule Visit';
+        }
+    });
+</script>
+
+</body>
+</html>
