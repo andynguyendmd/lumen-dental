@@ -945,23 +945,7 @@ footer { background:var(--navy); padding:3rem 8% 2rem; border-top:1px solid rgba
 </footer>
 
 <script>
-// ── GOOGLE PLACES DYNAMIC REVIEWS ──
-const PLACE_ID = 'ChIJf7rQM5BBYIgRXfPNqg1rZiw';
-const API_KEY  = 'AIzaSyDJ1YYtUOmzHayGmFl3W0FWvHnXg_GhK6c';
-
-// Full pool of known 5-star reviews — used to supplement & vary what Google returns
-const REVIEW_POOL = [
-  { author_name:'Nik', rating:5, relative_time_description:'2 months ago', text:'Dr. Andy Nguyen and his team were so kind and gentle. So professional. So knowledgeable. We were in good hands getting my son\'s impacted wisdom teeth removed. I\'m so grateful for their good work and warm dispositions. They were quick.', profile_photo_url:null },
-  { author_name:'Liz C', rating:5, relative_time_description:'a month ago', text:'I have been taking my kids here for at least 12 years. The only front office person I can remember is the one still currently there, Clarissa. She is the most sweetest person.', profile_photo_url:null },
-  { author_name:'Shaunta Gallegos', rating:5, relative_time_description:'2 months ago', text:'Just had another great visit. Clarissa is seriously the sweetest and always makes me feel super comfortable. The place is spotless, which is a huge plus, and they\'re quick so I\'m never stuck there all day.', profile_photo_url:null },
-  { author_name:'Don Ethridge', rating:5, relative_time_description:'2 months ago', text:'Doctor Andy and his complete staff did an excellent job on my crown preparation. He was very gentle and I didn\'t feel pain during the anesthesia injection. He took time to explain the procedure. I highly recommend them.', profile_photo_url:null },
-  { author_name:'Leroy Wright', rating:5, relative_time_description:'a month ago', text:'Just a loving dentist office where I feel great. I\'ve been visiting Doctor Andy\'s office — Andy, Clarissa, Dr. Sarah — they were all very great and nice. They treated me well.', profile_photo_url:null },
-  { author_name:'Miguel F', rating:5, relative_time_description:'2 months ago', text:'Gulf Coast dental is always wonderful. They are awesome to my boys — great service. Clarissa is the best of the best.', profile_photo_url:null },
-  { author_name:'Juan M', rating:5, relative_time_description:'2 months ago', text:'Great staff and the doctor was so nice and explained everything well.', profile_photo_url:null },
-  { author_name:'Sharon C', rating:5, relative_time_description:'5 months ago', text:'The doctor knows how to work with my dental plan to give me results I love, and I am smiling again. I\'ve been to several dentists before and this office is by far the best.', profile_photo_url:null },
-  { author_name:'Verified Patient', rating:5, relative_time_description:'3 months ago', text:'Always a pleasant experience. The staff is incredibly professional and friendly. I never feel rushed and they always make sure I\'m comfortable throughout my visit.', profile_photo_url:null },
-  { author_name:'James R', rating:5, relative_time_description:'4 months ago', text:'Dr. Nguyen is the best dentist I\'ve ever had. He takes the time to explain what he\'s doing and why. The whole team makes you feel like family from the moment you walk in.', profile_photo_url:null },
-];
+// ── GOOGLE REVIEWS — loaded from reviews.json (updated nightly by GitHub Action) ──
 
 // Fisher-Yates shuffle
 function shuffle(arr) {
@@ -971,18 +955,6 @@ function shuffle(arr) {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
-}
-
-// Merge live API reviews with pool, deduplicate by name, shuffle, slice to 6
-// This ensures a DIFFERENT set of 6 reviews on every page load
-function buildReviewSet(apiReviews) {
-  const live = (apiReviews || []).filter(r => r.rating >= 4);
-  const liveNames = new Set(live.map(r => r.author_name.toLowerCase()));
-  const poolExtras = REVIEW_POOL.filter(r => !liveNames.has(r.author_name.toLowerCase()));
-  // Shuffle both independently so pool order is random
-  const combined = [...shuffle(live), ...shuffle(poolExtras)];
-  // Shuffle the whole combined set, then take only 6 — different 6 each visit
-  return shuffle(combined).slice(0, 6);
 }
 
 const avatarColors = ['#1B2B3A','#3CC8C8','#25A5A5','#243447','#4A6070'];
@@ -1057,38 +1029,43 @@ document.getElementById('carouselPrev').addEventListener('click',()=>goTo(curren
 document.getElementById('carouselNext').addEventListener('click',()=>goTo(currentIndex+getVisible()));
 window.addEventListener('resize',()=>{ currentIndex=0; renderCarousel(); });
 
-function initReviews(data){
-  reviews = buildReviewSet(data);
-  if(!reviews.length) reviews = shuffle(REVIEW_POOL);
-  renderCarousel(); resetAuto();
-}
+// Fetch all reviews from reviews.json (generated nightly by GitHub Action)
+// Shuffles the full set and picks 6 different ones on every page load
+fetch('reviews.json')
+  .then(r => r.json())
+  .then(data => {
+    const all5star = (data.reviews || []).filter(r => r.rating >= 5);
 
-window.initPlaces=function(){
-  const svc=new google.maps.places.PlacesService(document.createElement('div'));
-  svc.findPlaceFromQuery({
-    query:'Lumen Dental 309 Garland Drive Lake Jackson TX',
-    fields:['place_id','name']
-  },(results,status)=>{
-    const pid=(status===google.maps.places.PlacesServiceStatus.OK&&results&&results[0])
-      ?results[0].place_id:PLACE_ID;
-    svc.getDetails({placeId:pid,fields:['rating','user_ratings_total','reviews']},(place,ds)=>{
-      if(ds===google.maps.places.PlacesServiceStatus.OK&&place){
-        const sc=document.getElementById('reviews-score');
-        const ct=document.getElementById('reviews-count');
-        if(sc&&place.rating) sc.textContent=place.rating.toFixed(1);
-        if(ct&&place.user_ratings_total) ct.textContent=place.user_ratings_total+' Google Reviews';
-        initReviews(place.reviews||[]);
-      } else initReviews([]);
-    });
+    // Update the score + count display if the JSON has that info
+    const sc = document.getElementById('reviews-score');
+    const ct = document.getElementById('reviews-count');
+    if (sc && data.average_rating) sc.textContent = data.average_rating.toFixed(1);
+    if (ct && data.total_count)    ct.textContent  = data.total_count + ' Google Reviews';
+
+    // Pick a fresh random 6 from the full pool every visit
+    reviews = shuffle(all5star).slice(0, 6);
+    if (!reviews.length) reviews = getFallback();
+    renderCarousel();
+    resetAuto();
+  })
+  .catch(() => {
+    // reviews.json not found yet — use built-in fallback
+    reviews = shuffle(getFallback()).slice(0, 6);
+    renderCarousel();
+    resetAuto();
   });
-};
 
-(function(){
-  const s=document.createElement('script');
-  s.src=`https://maps.googleapis.com/maps/api/js?key=${API_KEY}&libraries=places&callback=initPlaces`;
-  s.async=true; s.defer=true; s.onerror=()=>initReviews([]);
-  document.head.appendChild(s);
-})();
+// Fallback for first deploy before GitHub Action has run
+function getFallback() {
+  return [
+    { author_name:'Nik', rating:5, relative_time_description:'2 months ago', text:'Dr. Andy Nguyen and his team were so kind and gentle. So professional. So knowledgeable. We were in good hands getting my son\'s impacted wisdom teeth removed. I\'m so grateful for their good work and warm dispositions. They were quick.', profile_photo_url:null },
+    { author_name:'Liz C', rating:5, relative_time_description:'a month ago', text:'I have been taking my kids here for at least 12 years. The only front office person I can remember is the one still currently there, Clarissa. She is the most sweetest person.', profile_photo_url:null },
+    { author_name:'Shaunta Gallegos', rating:5, relative_time_description:'2 months ago', text:'Just had another great visit. Clarissa is seriously the sweetest and always makes me feel super comfortable. The place is spotless, which is a huge plus, and they\'re quick so I\'m never stuck there all day.', profile_photo_url:null },
+    { author_name:'Don Ethridge', rating:5, relative_time_description:'2 months ago', text:'Doctor Andy and his complete staff did an excellent job on my crown preparation. He was very gentle and I didn\'t feel pain during the anesthesia injection. He took time to explain the procedure. I highly recommend them.', profile_photo_url:null },
+    { author_name:'Leroy Wright', rating:5, relative_time_description:'a month ago', text:'Just a loving dentist office where I feel great. I\'ve been visiting Doctor Andy\'s office — Andy, Clarissa, Dr. Sarah — they were all very great and nice. They treated me well.', profile_photo_url:null },
+    { author_name:'Sharon C', rating:5, relative_time_description:'5 months ago', text:'The doctor knows how to work with my dental plan to give me results I love, and I am smiling again. I\'ve been to several dentists before and this office is by far the best.', profile_photo_url:null },
+  ];
+}
 
 // Hamburger
 const hbg=document.getElementById('hamburger');
