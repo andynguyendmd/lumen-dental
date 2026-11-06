@@ -255,6 +255,30 @@
 .services .service-image-credit a{color:inherit}
 @media(max-width:980px){.services .service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.services .service-grid>.service-card,.services .service-grid>.service-card:nth-child(n+5){grid-column:auto}}
 @media(max-width:620px){.services .service-grid{grid-template-columns:minmax(0,1fr)}.services .service-card>.service-photo{height:auto;aspect-ratio:2.15/1}}
+
+/* On phones, use the full last row for the fifth staff portrait and bio. */
+@media (max-width: 620px) {
+  .team-grid > .team-card:last-child {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 44%) minmax(0, 1fr);
+    align-items: stretch;
+  }
+  .team-grid > .team-card:last-child .team-avatar {
+    height: 100%;
+    min-height: 250px;
+  }
+  .team-grid > .team-card:last-child .team-avatar img {
+    height: 100%;
+    object-fit: cover;
+    object-position: center 20%;
+  }
+  .team-grid > .team-card:last-child .team-info {
+    align-self: center;
+    padding: 18px 16px;
+  }
+}
+
 </style>
   <script type="application/ld+json">
   {
