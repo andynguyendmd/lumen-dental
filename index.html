@@ -823,7 +823,7 @@ footer { background:var(--navy); padding:3rem 8% 2rem; border-top:1px solid rgba
     <div class="reviews-score" id="reviews-score">5.0</div>
     <div>
       <div class="stars">★★★★★</div>
-      <div class="reviews-count" id="reviews-count">80+ Google Reviews</div>
+      <div class="reviews-count">Google Patient Reviews</div>
     </div>
   </div>
   <div class="carousel-outer fade-up">
@@ -1039,14 +1039,8 @@ fetch('reviews.json', {cache: 'no-cache'})
   .then(r => { if (!r.ok) throw new Error('Missing reviews.json'); return r.json(); })
   .then(data => {
     const sc = document.getElementById('reviews-score');
-    const ct = document.getElementById('reviews-count');
     if (sc && typeof data.average_rating === 'number' && data.average_rating >= 0 && data.average_rating <= 5) {
       sc.textContent = data.average_rating.toFixed(1);
-    }
-    if (ct && typeof data.display_count === 'string' && data.display_count.trim()) {
-      ct.textContent = data.display_count;
-    } else if (ct && Number.isInteger(data.total_count) && data.total_count > 0) {
-      ct.textContent = data.total_count + ' Google Reviews';
     }
     reviews = shuffle((Array.isArray(data.reviews) ? data.reviews : [])
       .filter(r => r && r.rating === 5 && typeof r.text === 'string' && r.text.trim())).slice(0, 20);
