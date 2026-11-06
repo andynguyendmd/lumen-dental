@@ -2,7 +2,7 @@
   "updated_at": "2026-11-06",
   "note": "Manual entries; not automatically connected to Google. Verify exact rating and review wording against the live Google listing before updating.",
   "average_rating": 5,
-  "display_count": "80+ Google Reviews",
+  "display_count": "82 Google Reviews",
   "google_review_url": "https://g.page/r/CV3zzaoNa2YsEBM/review",
   "reviews": [
     {
@@ -41,5 +41,6 @@
       "relative_time_description": "",
       "text": "The doctor knows how to work with my dental plan to give me results I love, and I am smiling again. I've been to several dentists before and this office is by far the best."
     }
-  ]
+  ],
+  "total_count": 82
 }
