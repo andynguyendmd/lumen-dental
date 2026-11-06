@@ -823,7 +823,7 @@ footer { background:var(--navy); padding:3rem 8% 2rem; border-top:1px solid rgba
     <div class="reviews-score" id="reviews-score">4.9</div>
     <div>
       <div class="stars">★★★★★</div>
-      <div class="reviews-count" id="reviews-count">49 Google Reviews</div>
+      <div class="reviews-count" id="reviews-count">80+ Google Reviews</div>
     </div>
   </div>
   <div class="carousel-outer fade-up">
@@ -835,7 +835,7 @@ footer { background:var(--navy); padding:3rem 8% 2rem; border-top:1px solid rgba
   </div>
   <div class="carousel-dots" id="carouselDots"></div>
   <div class="reviews-cta fade-up">
-    <a href="https://www.google.com/maps/place/Lumen+Dental/@29.0173352,-95.4256331,17z/data=!3m1!4b1!4m6!3m5!1s0x8640419033d0ba7f:0x2c666b0daacdf35d!8m2!3d29.0173305!4d-95.4230582!16s%2Fg%2F1tdlhp7r?entry=ttu&g_ep=EgoyMDI2MDQwOC4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener">Read All Google Reviews →</a>
+    <a href="https://www.google.com/maps/search/?api=1&amp;query=Lumen%20Dental%20Lake%20Jackson" target="_blank" rel="noopener">Read All Google Reviews →</a> <a href="https://g.page/r/CV3zzaoNa2YsEBM/review" target="_blank" rel="noopener">Leave a Google Review →</a>
   </div>
 </section>
 
@@ -959,18 +959,22 @@ function shuffle(arr) {
 
 const avatarColors = ['#1B2B3A','#3CC8C8','#25A5A5','#243447','#4A6070'];
 function starStr(r){ return '★'.repeat(r)+'☆'.repeat(5-r); }
+function escapeReviewHTML(value) {
+  return String(value ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[c]);
+}
 function buildCard(r){
-  const init = r.author_name.charAt(0).toUpperCase();
+  const name = String(r.author_name || 'Google reviewer');
+  const init = (name.charAt(0) || 'G').toUpperCase();
   const color = avatarColors[init.charCodeAt(0)%avatarColors.length];
-  const avatarHTML = r.profile_photo_url
-    ? `<img src="${r.profile_photo_url}" alt="${r.author_name}">`
-    : `<span style="color:#fff;font-family:'Playfair Display',serif;font-size:1.1rem;">${init}</span>`;
+  // Only display escaped text from the manually curated reviews.json.
   return `<div class="review-card">
-    <div class="review-stars">${starStr(r.rating)}</div>
-    <div class="review-text">${r.text}</div>
+    <div class="review-stars">${starStr(Math.max(0, Math.min(5, Number(r.rating) || 0)))}</div>
+    <div class="review-text">${escapeReviewHTML(r.text)}</div>
     <div class="review-author">
-      <div class="review-avatar" style="background:${color}">${avatarHTML}</div>
-      <div><div class="review-name">${r.author_name}</div><div class="review-date">${r.relative_time_description}</div></div>
+      <div class="review-avatar" style="background:${color}"><span style="color:#fff;font-family:'Playfair Display',serif;font-size:1.1rem;">${escapeReviewHTML(init)}</span></div>
+      <div><div class="review-name">${escapeReviewHTML(name)}</div><div class="review-date">${escapeReviewHTML(r.relative_time_description || '')}</div></div>
     </div>
   </div>`;
 }
@@ -1029,43 +1033,30 @@ document.getElementById('carouselPrev').addEventListener('click',()=>goTo(curren
 document.getElementById('carouselNext').addEventListener('click',()=>goTo(currentIndex+getVisible()));
 window.addEventListener('resize',()=>{ currentIndex=0; renderCarousel(); });
 
-// Fetch all reviews from reviews.json (generated nightly by GitHub Action)
-// Shuffles the full set and picks 6 different ones on every page load
-fetch('reviews.json')
-  .then(r => r.json())
+// Subscription-free review section. Edit reviews.json in GitHub to update it.
+// This does NOT query Google and is not a live Google review count.
+fetch('reviews.json', {cache: 'no-cache'})
+  .then(r => { if (!r.ok) throw new Error('Missing reviews.json'); return r.json(); })
   .then(data => {
-    const all5star = (data.reviews || []).filter(r => r.rating >= 5);
-
-    // Update the score + count display if the JSON has that info
     const sc = document.getElementById('reviews-score');
     const ct = document.getElementById('reviews-count');
-    if (sc && data.average_rating) sc.textContent = data.average_rating.toFixed(1);
-    if (ct && data.total_count)    ct.textContent  = data.total_count + ' Google Reviews';
-
-    // Pick a fresh random 6 from the full pool every visit
-    reviews = shuffle(all5star).slice(0, 6);
-    if (!reviews.length) reviews = getFallback();
-    renderCarousel();
-    resetAuto();
+    if (sc && typeof data.average_rating === 'number' && data.average_rating >= 0 && data.average_rating <= 5) {
+      sc.textContent = data.average_rating.toFixed(1);
+    }
+    if (ct && typeof data.display_count === 'string' && data.display_count.trim()) {
+      ct.textContent = data.display_count;
+    } else if (ct && Number.isInteger(data.total_count) && data.total_count > 0) {
+      ct.textContent = data.total_count + ' Google Reviews';
+    }
+    reviews = shuffle((Array.isArray(data.reviews) ? data.reviews : [])
+      .filter(r => r && r.rating === 5 && typeof r.text === 'string' && r.text.trim())).slice(0, 6);
+    if (reviews.length) { renderCarousel(); resetAuto(); }
+    else { document.querySelector('.carousel-outer').style.display = 'none'; }
   })
   .catch(() => {
-    // reviews.json not found yet — use built-in fallback
-    reviews = shuffle(getFallback()).slice(0, 6);
-    renderCarousel();
-    resetAuto();
+    // Keep the static summary and Google review links available if data cannot load.
+    document.querySelector('.carousel-outer').style.display = 'none';
   });
-
-// Fallback for first deploy before GitHub Action has run
-function getFallback() {
-  return [
-    { author_name:'Nik', rating:5, relative_time_description:'2 months ago', text:'Dr. Andy Nguyen and his team were so kind and gentle. So professional. So knowledgeable. We were in good hands getting my son\'s impacted wisdom teeth removed. I\'m so grateful for their good work and warm dispositions. They were quick.', profile_photo_url:null },
-    { author_name:'Liz C', rating:5, relative_time_description:'a month ago', text:'I have been taking my kids here for at least 12 years. The only front office person I can remember is the one still currently there, Clarissa. She is the most sweetest person.', profile_photo_url:null },
-    { author_name:'Shaunta Gallegos', rating:5, relative_time_description:'2 months ago', text:'Just had another great visit. Clarissa is seriously the sweetest and always makes me feel super comfortable. The place is spotless, which is a huge plus, and they\'re quick so I\'m never stuck there all day.', profile_photo_url:null },
-    { author_name:'Don Ethridge', rating:5, relative_time_description:'2 months ago', text:'Doctor Andy and his complete staff did an excellent job on my crown preparation. He was very gentle and I didn\'t feel pain during the anesthesia injection. He took time to explain the procedure. I highly recommend them.', profile_photo_url:null },
-    { author_name:'Leroy Wright', rating:5, relative_time_description:'a month ago', text:'Just a loving dentist office where I feel great. I\'ve been visiting Doctor Andy\'s office — Andy, Clarissa, Dr. Sarah — they were all very great and nice. They treated me well.', profile_photo_url:null },
-    { author_name:'Sharon C', rating:5, relative_time_description:'5 months ago', text:'The doctor knows how to work with my dental plan to give me results I love, and I am smiling again. I\'ve been to several dentists before and this office is by far the best.', profile_photo_url:null },
-  ];
-}
 
 // Hamburger
 const hbg=document.getElementById('hamburger');
