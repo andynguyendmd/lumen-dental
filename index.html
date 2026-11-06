@@ -599,7 +599,7 @@ footer { background:var(--navy); padding:3rem 8% 2rem; border-top:1px solid rgba
         <div class="hero-stat-label">Years Serving<br>the Community</div>
       </div>
       <div>
-        <div class="hero-stat-num">4.9★</div>
+        <div class="hero-stat-num">5.0★</div>
         <div class="hero-stat-label">Google Rating</div>
       </div>
       <div>
@@ -620,7 +620,7 @@ footer { background:var(--navy); padding:3rem 8% 2rem; border-top:1px solid rgba
       </div>
       <div class="hero-stat-cards-row">
         <div class="hero-stat-card-sm">
-          <div class="hero-stat-card-num">4.9★</div>
+          <div class="hero-stat-card-num">5.0★</div>
           <div class="hero-stat-card-label">Google Rating</div>
         </div>
         <div class="hero-stat-card-sm">
@@ -820,7 +820,7 @@ footer { background:var(--navy); padding:3rem 8% 2rem; border-top:1px solid rgba
     <h2 class="section-title">What Our <em>Patients</em> Say</h2>
   </div>
   <div class="reviews-overall fade-up">
-    <div class="reviews-score" id="reviews-score">4.9</div>
+    <div class="reviews-score" id="reviews-score">5.0</div>
     <div>
       <div class="stars">★★★★★</div>
       <div class="reviews-count" id="reviews-count">80+ Google Reviews</div>
@@ -1049,7 +1049,7 @@ fetch('reviews.json', {cache: 'no-cache'})
       ct.textContent = data.total_count + ' Google Reviews';
     }
     reviews = shuffle((Array.isArray(data.reviews) ? data.reviews : [])
-      .filter(r => r && r.rating === 5 && typeof r.text === 'string' && r.text.trim())).slice(0, 6);
+      .filter(r => r && r.rating === 5 && typeof r.text === 'string' && r.text.trim())).slice(0, 20);
     if (reviews.length) { renderCarousel(); resetAuto(); }
     else { document.querySelector('.carousel-outer').style.display = 'none'; }
   })
