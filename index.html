@@ -143,6 +143,7 @@
     .rating-box small{display:block;color:var(--muted);font-size:.73rem}
     .carousel-shell{overflow:hidden}
     .carousel-track{display:flex;gap:20px;transition:transform .45s ease}
+    @media(min-width:761px) and (max-width:1024px){.review-card{flex-basis:calc((100% - 20px)/2)}}
     .review-card{flex:0 0 calc((100% - 40px)/3);padding:25px;border:1px solid var(--line);border-radius:19px;background:#fbfdfd;min-height:230px;display:flex;flex-direction:column}
     .review-stars{color:#d5a34f;letter-spacing:2px;font-size:.88rem}
     .review-text{color:#506772;font-size:.9rem;line-height:1.75;margin:17px 0 24px;flex:1}
@@ -507,30 +508,48 @@
     }
     let currentIndex=0,reviews=[],autoTimer=null;
     function getVisible(){return window.innerWidth<=760?1:window.innerWidth<=1024?2:3;}
+    function getPageStarts(){
+      const vis=getVisible(),last=Math.max(0,reviews.length-vis),starts=[];
+      for(let i=0;i<=last;i+=vis)starts.push(i);
+      if(!starts.length)starts.push(0);
+      if(starts[starts.length-1]!==last)starts.push(last);
+      return starts;
+    }
     function renderCarousel(){
       const track=document.getElementById('carouselTrack'),dots=document.getElementById('carouselDots');
       if(!track||!reviews.length)return;
-      const vis=getVisible();track.innerHTML=reviews.map(buildCard).join('');
-      const pages=Math.ceil(reviews.length/vis);
-      dots.innerHTML=Array.from({length:pages},(_,i)=>`<button class="carousel-dot${i===0?' active':''}" data-index="${i}" aria-label="Show review page ${i+1}"></button>`).join('');
-      dots.querySelectorAll('button').forEach(d=>d.addEventListener('click',()=>goTo(parseInt(d.dataset.index,10)*getVisible())));
+      track.innerHTML=reviews.map(buildCard).join('');
+      const starts=getPageStarts();
+      dots.innerHTML=starts.map((idx,i)=>`<button class="carousel-dot${i===0?' active':''}" data-index="${idx}" aria-label="Show review page ${i+1}"></button>`).join('');
+      dots.querySelectorAll('button').forEach(d=>d.addEventListener('click',()=>goTo(Number(d.dataset.index))));
       currentIndex=0;updateCarousel();
     }
     function updateCarousel(){
       const track=document.getElementById('carouselTrack'),dots=document.getElementById('carouselDots');
       if(!track||!track.children.length)return;
-      const vis=getVisible(),gap=20,cardW=track.parentElement.offsetWidth/vis-gap*(vis-1)/vis;
-      track.style.transform=`translateX(-${currentIndex*(cardW+gap)}px)`;
-      const activePage=Math.floor(currentIndex/vis);
-      dots.querySelectorAll('.carousel-dot').forEach((d,i)=>d.classList.toggle('active',i===activePage));
+      const last=Math.max(0,reviews.length-getVisible());
+      currentIndex=Math.max(0,Math.min(currentIndex,last));
+      // Use actual card positions instead of assuming a fixed width across tablet browsers.
+      const first=track.children[0],target=track.children[currentIndex];
+      const offset=target.offsetLeft-first.offsetLeft;
+      track.style.transform=`translateX(-${offset}px)`;
+      const starts=getPageStarts();
+      const active=starts.reduce((best,s,i)=>Math.abs(s-currentIndex)<Math.abs(starts[best]-currentIndex)?i:best,0);
+      dots.querySelectorAll('.carousel-dot').forEach((d,i)=>d.classList.toggle('active',i===active));
       document.getElementById('carouselPrev').disabled=currentIndex===0;
-      document.getElementById('carouselNext').disabled=currentIndex>=Math.max(0,reviews.length-vis);
+      document.getElementById('carouselNext').disabled=currentIndex>=last;
     }
-    function goTo(idx){const vis=getVisible();currentIndex=Math.max(0,Math.min(idx,Math.max(0,reviews.length-vis)));updateCarousel();resetAuto();}
-    function resetAuto(){clearInterval(autoTimer);if(reviews.length>getVisible())autoTimer=setInterval(()=>{const vis=getVisible();goTo(currentIndex>=reviews.length-vis?0:currentIndex+vis);},6500);}
-    document.getElementById('carouselPrev').addEventListener('click',()=>goTo(currentIndex-getVisible()));
-    document.getElementById('carouselNext').addEventListener('click',()=>goTo(currentIndex+getVisible()));
-    window.addEventListener('resize',()=>{currentIndex=0;renderCarousel();});
+    function goTo(idx){currentIndex=Math.max(0,Math.min(idx,Math.max(0,reviews.length-getVisible())));updateCarousel();resetAuto();}
+    function resetAuto(){
+      clearInterval(autoTimer);
+      if(reviews.length>getVisible())autoTimer=setInterval(()=>{
+        const starts=getPageStarts(),next=starts.find(s=>s>currentIndex);
+        goTo(next===undefined?0:next);
+      },6500);
+    }
+    document.getElementById('carouselPrev').addEventListener('click',()=>{const starts=getPageStarts().filter(s=>s<currentIndex);goTo(starts.length?starts[starts.length-1]:0);});
+    document.getElementById('carouselNext').addEventListener('click',()=>{const next=getPageStarts().find(s=>s>currentIndex);goTo(next===undefined?currentIndex:next);});
+    window.addEventListener('resize',()=>{renderCarousel();resetAuto();});
     function getFallback(){return [
       {author_name:'Nik',rating:5,text:'Dr. Andy Nguyen and his team were so kind and gentle. So professional. So knowledgeable. We were in good hands getting my son’s impacted wisdom teeth removed. I’m so grateful for their good work and warm dispositions. They were quick.',profile_photo_url:null},
       {author_name:'Liz C',rating:5,text:'I have been taking my kids here for at least 12 years. The front office team is so kind and welcoming.',profile_photo_url:null},
