@@ -33,6 +33,9 @@
     .btn-outline{border-color:#c8dcda;color:var(--ink);background:rgba(255,255,255,.7)}
     .btn-outline:hover{border-color:var(--teal);background:var(--pale)}
     .arrow{font-size:1.15rem;line-height:1}
+    /* Mobile visitors can text directly; desktop visitors see the QR contact section. */
+    .hero-cta-mobile{display:none!important}
+    @media(max-width:760px){.hero-cta-mobile{display:inline-flex!important}.hero-cta-desktop{display:none!important}}
     /* Navigation */
     .topline{background:var(--ink);color:#dce9e8;font-size:.78rem}
     .topline .container{display:flex;justify-content:space-between;gap:16px;padding:8px 0}
@@ -343,7 +346,7 @@
       <div class="nav-actions"><a class="nav-phone" href="tel:9794809300">(979) 480-9300</a><a class="btn btn-primary" href="#contact">Text to Request a Visit <span class="arrow">↗</span></a></div>
       <button class="hamburger" id="hamburger" aria-label="Open navigation" aria-expanded="false"><span></span><span></span><span></span></button>
     </nav>
-    <div class="mobile-menu" id="mobileMenu"><a class="menu-link" href="#about">About</a><a class="menu-link" href="#services">Services</a><a class="menu-link" href="#team">Our Team</a><a class="menu-link" href="#reviews">Reviews</a><a class="menu-link mobile-cta" href="#contact">Text to Request a Visit ↗</a></div>
+    <div class="mobile-menu" id="mobileMenu"><a class="menu-link" href="#about">About</a><a class="menu-link" href="#services">Services</a><a class="menu-link" href="#team">Our Team</a><a class="menu-link" href="#reviews">Reviews</a><a class="menu-link mobile-cta" href="sms:+19794809300">Text to Request a Visit ↗</a></div>
   </div>
 
   <main>
@@ -353,7 +356,7 @@
           <span class="eyebrow">Lake Jackson, Texas · Family-owned dental care</span>
           <h1>A brighter smile.<span>A better feeling.</span></h1>
           <p>Family-owned dentistry with deep local roots. Our team is here to make every visit feel comfortable, clear, and centered around you.</p>
-          <div class="hero-actions"><a class="btn btn-primary" href="#contact">Text to Request an Appointment <span class="arrow">↗</span></a><a class="btn btn-outline" href="#services">Explore Our Services</a></div>
+          <div class="hero-actions"><a class="btn btn-primary hero-cta-mobile" href="sms:+19794809300">Text to Request an Appointment <span class="arrow">↗</span></a><a class="btn btn-primary hero-cta-desktop" href="#contact">Text to Request an Appointment <span class="arrow">↗</span></a><a class="btn btn-outline" href="#services">Explore Our Services</a></div>
           <div class="hero-note"><div class="mini-avatars"><span>A</span><span>L</span><span>H</span></div><span>Friendly faces. Thoughtful care. Right here in Lake Jackson.</span></div>
         </div>
         <div class="hero-visual fade-up">
@@ -470,7 +473,7 @@
   <div class="sms-number">Text <strong>(979) 480-9300</strong></div>
   <div class="sms-scan">
     <img src="sms-qr.svg" alt="QR code: scan with your phone camera to start a text message to Lumen Dental" width="132" height="132" loading="lazy">
-    <div><strong>On a computer or Tesla screen?</strong><span>Scan this code with your phone's camera to open a text to our office.</span></div>
+    <div><strong>On a computer or tablet?</strong><span>Scan this code with your phone's camera to open a text to our office.</span></div>
   </div>
   <a class="sms-call" href="tel:+19794809300">Prefer to talk? Call (979) 480-9300</a>
   <p class="sms-note">A text request does not confirm an appointment. Your messaging app opens first; tap Send to contact us. Please avoid sharing sensitive medical or insurance information by standard text.</p>
